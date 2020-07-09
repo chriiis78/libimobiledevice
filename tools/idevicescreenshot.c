@@ -329,6 +329,7 @@ int main(int argc, char **argv)
 				Base64encode(b64data, imgdata, imgsize);
 				printf("%s", b64data);
 				free(b64data);
+				result = 0;
 				/*
 				if (!filename) {
 					const char *fileext = NULL;
