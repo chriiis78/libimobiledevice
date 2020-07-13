@@ -260,6 +260,8 @@ int main(int argc, char **argv)
 	const char *udid = NULL;
 	int use_network = 0;
 	char *filename = NULL;
+	int print_output = 0;
+	
 
 #ifndef WIN32
 	signal(SIGPIPE, SIG_IGN);
@@ -281,6 +283,10 @@ int main(int argc, char **argv)
 		}
 		else if (!strcmp(argv[i], "-n") || !strcmp(argv[i], "--network")) {
 			use_network = 1;
+			continue;
+		}
+		else if (!strcmp(argv[i], "-o") || !strcmp(argv[i], "--output")) {
+			print_output = 1;
 			continue;
 		}
 		else if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help")) {
@@ -325,40 +331,41 @@ int main(int argc, char **argv)
 			char *imgdata = NULL;
 			uint64_t imgsize = 0;
 			if (screenshotr_take_screenshot(shotr, &imgdata, &imgsize) == SCREENSHOTR_E_SUCCESS) {
-				char *b64data = malloc(Base64encode_len(imgsize));
-				Base64encode(b64data, imgdata, imgsize);
-				printf("%s", b64data);
-				free(b64data);
-				result = 0;
-				/*
-				if (!filename) {
-					const char *fileext = NULL;
-					if (memcmp(imgdata, "\x89PNG", 4) == 0) {
-						fileext = ".png";
-					} else if (memcmp(imgdata, "MM\x00*", 4) == 0) {
-						fileext = ".tiff";
-					} else {
-						printf("WARNING: screenshot data has unexpected image format.\n");
-						fileext = ".dat";
-					}
-					time_t now = time(NULL);
-					filename = (char*)malloc(36);
-					size_t pos = strftime(filename, 36, "screenshot-%Y-%m-%d-%H-%M-%S", gmtime(&now));
-					sprintf(filename+pos, "%s", fileext);
-				}
-				FILE *f = fopen(filename, "wb");
-				if (f) {
-					if (fwrite(imgdata, 1, (size_t)imgsize, f) == (size_t)imgsize) {
-						printf("Screenshot saved to %s\n", filename);
-						result = 0;
-					} else {
-						printf("Could not save screenshot to file %s!\n", filename);
-					}
-					fclose(f);
+				if (print_output == 1) {
+					char *b64data = malloc(Base64encode_len(imgsize));
+					Base64encode(b64data, imgdata, imgsize);
+					printf("%s", b64data);
+					free(b64data);
+					result = 0;
 				} else {
-					printf("Could not open %s for writing: %s\n", filename, strerror(errno));
+					if (!filename) {
+						const char *fileext = NULL;
+						if (memcmp(imgdata, "\x89PNG", 4) == 0) {
+							fileext = ".png";
+						} else if (memcmp(imgdata, "MM\x00*", 4) == 0) {
+							fileext = ".tiff";
+						} else {
+							printf("WARNING: screenshot data has unexpected image format.\n");
+							fileext = ".dat";
+						}
+						time_t now = time(NULL);
+						filename = (char*)malloc(36);
+						size_t pos = strftime(filename, 36, "screenshot-%Y-%m-%d-%H-%M-%S", gmtime(&now));
+						sprintf(filename+pos, "%s", fileext);
+					}
+					FILE *f = fopen(filename, "wb");
+					if (f) {
+						if (fwrite(imgdata, 1, (size_t)imgsize, f) == (size_t)imgsize) {
+							printf("Screenshot saved to %s\n", filename);
+							result = 0;
+						} else {
+							printf("Could not save screenshot to file %s!\n", filename);
+						}
+						fclose(f);
+					} else {
+						printf("Could not open %s for writing: %s\n", filename, strerror(errno));
+					}
 				}
-				*/
 			} else {
 				printf("Could not get screenshot!\n");
 			}
