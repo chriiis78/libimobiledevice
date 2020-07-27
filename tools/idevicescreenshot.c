@@ -365,6 +365,7 @@ int main(int argc, char **argv)
 				if ((input == 1 && input_command[0] == 'i') || input == 0) {
 					if (screenshotr_take_screenshot(shotr, &imgdata, &imgsize) == SCREENSHOTR_E_SUCCESS) {
 						if (no_output == 1) {
+							free(imgdata);
 							continue;
 						}
 						else if (print_output == 1) {
@@ -402,6 +403,7 @@ int main(int argc, char **argv)
 								printf("Could not open %s for writing: %s\n", filename, strerror(errno));
 							}
 						}
+						free(imgdata);
 					} else {
 						printf("Could not get screenshot!\n");
 					}
